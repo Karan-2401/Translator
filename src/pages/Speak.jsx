@@ -16,7 +16,8 @@ const Speak = () => {
   // speak function
   function listenToSpeech() {
     const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-    recognition.lang = 'hi-IN';  // Set the language
+    recognition.lang = "en-CA"
+;  // Set the language
     recognition.interimResults = false;
     recognition.maxAlternatives = 1;
 
@@ -32,8 +33,9 @@ const Speak = () => {
           const synthesis = window.speechSynthesis;
           const utterance = new SpeechSynthesisUtterance(text);
           const voices = synthesis.getVoices();
-          utterance.voice = voices[167]
-        utterance.lang='hi-IN'
+          utterance.voice = voices[83]
+        utterance.lang="en-CA"
+
          
           synthesis.speak(utterance);
       }
