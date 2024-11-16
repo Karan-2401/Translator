@@ -7,6 +7,7 @@ import { RiSpeakLine } from "react-icons/ri";
 
 const Start2 = () => {
 const [state,setState] = useState(true)  
+const [color ,setColor] = useState(true);
 const changeState = (x)=>{
   setState(x)
 }
@@ -16,8 +17,14 @@ const changeState = (x)=>{
       <h1 className='text-3xl font-semibold font-mono  text-center '>Translator</h1>
       {state ? <Speak/>:<Write/>}
       <div className='flex gap-5'>
-        <button className='bg-black text-white p-2 px-5 rounded-sm hover:bg-white hover:text-yellow-400 trans ease-in duration-200 flex gap-2 items-center justify-center active:bg-white active:text-yellow-400' onClick={()=>{changeState(true)}}>{<RiSpeakLine/>}Speak</button>
-        <button className='bg-black text-white p-2 px-5 rounded-sm hover:bg-white hover:text-yellow-400 trans ease-in duration-200 flex justify-center items-center gap-2 active:bg-white active:text-yellow-400' onClick={()=>{changeState(false)}}>{<BsPencil/>}Write</button>
+        <button className={color ? 'bg-white text-yellow-400 p-2 px-5 rounded-sm hover:bg-black hover:text-white trans ease-in duration-500 flex gap-2 items-center justify-center': 'bg-black text-white p-2 px-5 rounded-sm hover:bg-white hover:text-yellow-400 trans ease-in duration-500 flex gap-2 items-center justify-center'} onClick={
+          ()=>{changeState(true)
+            setColor(true)
+          }
+          }>{<RiSpeakLine/>}Speak</button>
+        <button className={color ? "bg-black text-white p-2 px-5 rounded-sm hover:bg-white hover:text-yellow-400 trans ease-in duration-500 flex justify-center items-center gap-2": "bg-white text-yellow-400 p-2 px-5 rounded-sm hover:bg-black hover:text-white trans ease-in duration-500 flex justify-center items-center gap-2"} onClick={()=>{
+          changeState(false)
+          setColor(false)}}>{<BsPencil/>}Write</button>
       </div>
     </div>
     </>
