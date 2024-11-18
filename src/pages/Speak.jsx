@@ -1,123 +1,114 @@
-import React, { useEffect, useState } from "react";
-import { languages } from "../Languages";
 import { FaPlay } from "react-icons/fa";
-import { useDispatch, useSelector } from "react-redux";
-import { add } from "../store/Slices/langSlice";
-import { add2 } from "../store/Slices/langSlice2";
-import axios from "axios";
-//api
+import { languages } from "../Languages";
+import { useDispatch,useSelector } from "react-redux";
+import {add} from '../store/Slices/langSlice'
+import {add2} from '../store/Slices/langSlice2'
+import { stringify } from "postcss";
+import axios from 'axios';
+import { useEffect, useState } from "react";
 
-const [res, SetRes] = useState();
-const [res2, SetRes2] = useState();
-const [statex, SetStatex] = useState(true);
-const [p,SetP] = useState()
-const [pp,SetPP] = useState()
-const Options = {
-  
-  method: "POST",
-  url: "https://free-google-translator.p.rapidapi.com/external-api/free-google-translator",
+const Speak = () => {
+  const dispatch = useDispatch()
+  const res1 = useSelector((state)=>state.lang.value)
+  const res2 = useSelector((state)=>state.lang2.value)
+  const [speech,SetSpeech] = useState()
+  const [data,SetData] = useState()
+  const [finalData, SetFinalData] = useState()
+  // generating text code
+function speak(){
+  const SpeechRecognition =
+  window.SpeechRecognition || window.webkitSpeechRecognition;
+  try {
+    const recognition = new SpeechRecognition();
+
+    // Configuration
+    recognition.lang = res1[0].code; // Language
+    recognition.continuous = false; // Stops after each sentence
+    recognition.interimResults = false; // No partial results
+
+    // Start recognition
+    recognition.start();
+
+    // Event listener for recognition result
+    recognition.onresult = (event) => {
+      const transcript = event.results[0][0].transcript; // Captures the recognized text
+      console.log(`You said: ${transcript}`);
+      SetSpeech(transcript)
+      // speaking code
+      const synth = window.speechSynthesis;
+
+      // Create an utterance
+      const utterance = new SpeechSynthesisUtterance(data);
+
+      // Configure the utterance
+      utterance.lang = res2[0].code; // Language
+      utterance.pitch = 1; // Pitch (0.1 to 2)
+      utterance.rate = 1; // Speed (0.1 to 10)
+      utterance.volume = 1; // Volume (0 to 1)
+
+      // Speak the text
+      synth.speak(utterance);
+      // end of speaking code
+    };
+
+    // Error handling
+    recognition.onerror = (event) => {
+      console.error(`Error occurred in recognition: ${event.error}`);
+    };
+
+    // End event
+    recognition.onend = () => {
+      console.log("Speech recognition ended.");
+    };
+  } catch (error) {
+    console.log("Speech Recognition is not supported in this browser.", error);
+  }
+}
+
+// translator
+
+const options = {
+  method: 'POST',
+  url: 'https://free-google-translator.p.rapidapi.com/external-api/free-google-translator',
   params: {
-    from: p[0].code,
-    to: pp[0].code,
-    query: res,
+    from: res1[0].code,
+    to: res2[0].code,
+    query: speech
   },
   headers: {
-    "x-rapidapi-key": "68c1787308msh7ea6f56f24f9ed4p163152jsn5c500b9f5ea8",
-    "x-rapidapi-host": "free-google-translator.p.rapidapi.com",
-    "Content-Type": "application/json",
+    'x-rapidapi-key': '',
+    'x-rapidapi-host': 'free-google-translator.p.rapidapi.com',
+    'Content-Type': 'application/json'
   },
   data: {
-    translate: "rapidapi",
-  },
+    translate: 'rapidapi'
+  }
 };
-async function wait() {
+async function translator(){
   try {
-    const response = await axios.request(Options);
-    console.log(response.data);
-    SetRes2(response.data);
+    const response = await axios.request(options);
+    console.log("translated",response.data.translation);
+    SetData(response.data.translation)
   } catch (error) {
     console.error(error);
   }
 }
 
-//end api code
-const Speak = () => {
-  // speak function
-  const karan = useSelector((state) => state.lang.value);
-  const karan2 = useSelector((state) => state.lang2.value);
-  SetP(karan)
-  SetPP(karan2)
-  function listenToSpeech() {
-    const recognition = new (window.SpeechRecognition ||
-      window.webkitSpeechRecognition)();
-    recognition.lang = karan[0].code; // Set the language
-    recognition.interimResults = false;
-    recognition.maxAlternatives = 1;
-
-    recognition.start();
-
-    recognition.onresult = (event) => {
-      const speechResult = event.results[0][0].transcript;
-      console.log("You said: ", speechResult);
-      SetRes(speechResult);
-
-      // Handle the recognized text
-      //speakText("You said " + speechResult);
-      SetStatex(!statex)
-      function speakText1(text) {
-        const synthesis = window.speechSynthesis;
-        const utterance = new SpeechSynthesisUtterance(text);
-        const voices = synthesis.getVoices();
-        let xxxx = voices.filter((x) => {
-          return x.lang.includes(karan2[0].code);
-        });
-        console.log(xxxx);
-        utterance.voice = xxxx[1];
-        utterance.lang = karan2[0].code;
-
-        synthesis.speak(utterance);
-      }
-
-      // Usage example
-      setTimeout(speakText1(res2), 500);
-    };
-
-    recognition.onerror = (event) => {
-      console.error("Error occurred in recognition: ", event.error);
-    };
-  }
-
-  const dispatch = useDispatch();
-  useEffect(() => {
-    wait()
-  }, [statex]);
-
-  // function get1(e) {
-  //   let a = e.target.value;
-  //   const b = languages.filter((x) => {
-  //     return x.language === a;
-  //   });
-  //   dispatch(add(b))
-  // }
-
-  // function get2(e) {
-  //   let a = e.target.value;
-  //   const b = languages.filter((x) => {
-  //     return x.language === a;
-  //   });
-  //   dispatch(add2(b))
-  // }
-
-  // end
-
+useEffect(()=>{
+  translator()
+},[speech])
+// end translator
+  
+  // ending of generating text
   return (
     <div className="w-screen flex items-center justify-center">
       <div className="flex flex-col w-11/12 sm:w-4/12 items-center justify-around gap-5 bg-white p-5 rounded-xl shadow-lg">
         <select
           className="w-4/12 bg-black text-yellow-500 p-1 rounded-lg"
-          onChange={(e) => {
-            dispatch(add(e.target.value));
-          }}
+          onChange={(e) => 
+            {let a = e.target.value
+              dispatch(add(a))
+            }}
         >
           {languages.map((x) => {
             return (
@@ -127,16 +118,14 @@ const Speak = () => {
             );
           })}
         </select>
-        <button
-          className="bg-black text-yellow-400 p-2 rounded-2xl flex items-center justify-center w-10 h-10"
-          onClick={listenToSpeech}
-        >
+        <button className="bg-black text-yellow-400 p-2 rounded-2xl flex items-center justify-center w-10 h-10" onClick={speak}>
           {<FaPlay />}
         </button>
         <select
           className="w-4/12 bg-black text-yellow-500 p-1 rounded-lg"
           onChange={(e) => {
-            dispatch(add2(e.target.value));
+            let a = e.target.value;
+            dispatch(add2(a))
           }}
         >
           {languages.map((x) => {
@@ -148,6 +137,8 @@ const Speak = () => {
           })}
         </select>
       </div>
+      {console.log(res1[0])}
+      {console.log(res2)}
     </div>
   );
 };
