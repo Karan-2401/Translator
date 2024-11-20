@@ -6,6 +6,7 @@ import { add2 } from "../store/Slices/langSlice2";
 import { stringify } from "postcss";
 import axios from "axios";
 import { useEffect, useState } from "react";
+import { FaRegCirclePause } from "react-icons/fa6";
 
 const Speak = () => {
   const dispatch = useDispatch();
@@ -14,6 +15,7 @@ const Speak = () => {
   const [speech, SetSpeech] = useState();
   const [data, SetData] = useState();
   const [finalData, SetFinalData] = useState();
+  const [icon,SetIcon] =useState(false)
   // generating text code
   function speak() {
     const SpeechRecognition =
@@ -27,6 +29,7 @@ const Speak = () => {
       recognition.interimResults = false; // No partial results
 
       // Start recognition
+      SetIcon(true)
       recognition.start();
 
       // Event listener for recognition result
@@ -34,24 +37,27 @@ const Speak = () => {
         const transcript = event.results[0][0].transcript; // Captures the recognized text
         console.log(`You said: ${transcript}`);
         SetSpeech(transcript);
-
+        SetIcon(false)
         // speaking code
       };
 
       // Error handling
       recognition.onerror = (event) => {
         console.error(`Error occurred in recognition: ${event.error}`);
+        SetIcon(false)
       };
 
       // End event
       recognition.onend = () => {
         console.log("Speech recognition ended.");
+        SetIcon(false)
       };
     } catch (error) {
       console.log(
         "Speech Recognition is not supported in this browser.",
         error
       );
+      SetIcon(false)
     }
   }
 
@@ -137,9 +143,9 @@ const Speak = () => {
           className="bg-black text-yellow-400 p-2 rounded-2xl flex items-center justify-center w-10 h-10"
           onClick={speak}
         >
-          {<FaPlay />}
+          {icon ? <FaRegCirclePause/> :<FaPlay />}
         </button>
-        <button onClick={speakxmen} className="bg-red-600 text-white p-2 rounded-md hover:bg-red-400">play voice</button>
+        <button onClick={speakxmen} className={data == null || undefined ? "bg-red-600 text-white p-2 rounded-md" : "bg-green-600 text-white p-2 rounded-md hover:bg-green-500"} >play voice</button>
         <select
           className="w-4/12 bg-black text-yellow-500 p-1 rounded-lg"
           onChange={(e) => {
